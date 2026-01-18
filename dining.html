@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>오키나와 아메리칸 빌리지 - 맛집/카페</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* [Mobile First CSS Design - 공통 스타일] */
+        :root {
+            --primary: #00A896;   /* 오키나와 바다색 */
+            --accent: #FF6F61;    /* 선셋 오렌지 */
+            --bg: #F4F7F6;
+            --text: #333;
+            --gray: #888;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { margin: 0; padding: 0; font-family: 'Noto Sans KR', sans-serif; background: var(--bg); color: var(--text); padding-bottom: 80px; }
+        a { text-decoration: none; color: inherit; }
+
+        /* 헤더 스타일 */
+        header {
+            position: fixed; top: 0; left: 0; width: 100%; z-index: 1000;
+            background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        /* 탭 스타일 */
+        .main-tabs { display: flex; border-bottom: 1px solid #eee; }
+        .tab-link {
+            flex: 1; padding: 15px 0; text-align: center;
+            font-size: 16px; font-weight: 700; color: var(--gray); 
+            cursor: pointer; transition: 0.2s; background: #fff;
+        }
+        .tab-link.active { color: var(--primary); border-bottom: 3px solid var(--primary); }
+
+        /* 검색창 스타일 */
+        .search-area { padding: 10px 15px; display: flex; align-items: center; gap: 10px; background: #fff; }
+        .search-box { position: relative; flex: 1; }
+        .search-box input {
+            width: 100%; padding: 10px 10px 10px 35px; border-radius: 8px;
+            border: 1px solid #ddd; background: #f9f9f9; font-size: 14px;
+        }
+        .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #aaa; }
+        
+        /* 영업중 토글 스위치 */
+        .filter-toggle {
+            display: flex; align-items: center; gap: 5px; font-size: 12px; color: #555; cursor: pointer; min-width: 65px;
+        }
+        .toggle-switch {
+            width: 34px; height: 20px; background: #ccc; border-radius: 20px; position: relative; transition: 0.3s;
+        }
+        .toggle-switch::after {
+            content: ''; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px;
+            background: #fff; border-radius: 50%; transition: 0.3s;
+        }
+        .filter-toggle.active .toggle-switch { background: var(--primary); }
+        .filter-toggle.active .toggle-switch::after { transform: translateX(14px); }
+
+        /* 건물 네비게이션 */
+        .building-nav-wrapper { background: #fff; border-bottom: 1px solid #eee; padding: 0 15px; }
+        .building-nav {
+            display: flex; overflow-x: auto; white-space: nowrap; gap: 8px; padding: 10px 0;
+            scrollbar-width: none;
+        }
+        .building-nav::-webkit-scrollbar { display: none; }
+        .chip {
+            padding: 8px 14px; border-radius: 20px; background: #f0f0f0;
+            font-size: 13px; color: #555; font-weight: 500; transition: 0.2s; cursor: pointer;
+        }
+        .chip.active { background: var(--primary); color: #fff; }
+
+        /* 콘텐츠 스타일 */
+        .content-container { margin-top: 155px; padding: 15px; }
+        .building-section { scroll-margin-top: 160px; margin-bottom: 30px; }
+        .section-header {
+            display: flex; align-items: center; margin-bottom: 15px;
+            font-size: 18px; font-weight: 700; color: #222;
+        }
+        .section-header::before {
+            content: ''; display: inline-block; width: 5px; height: 18px;
+            background: var(--primary); margin-right: 8px; border-radius: 2px;
+        }
+
+        /* 카드 UI */
+        .card {
+            background: #fff; border-radius: 12px; padding: 20px; margin-bottom: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04); border: 1px solid #eee;
+        }
+        .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+        .store-name { font-size: 17px; font-weight: bold; color: #222; margin: 0; line-height: 1.3; }
+        .store-cat { font-size: 11px; background: #f2f2f2; color: #666; padding: 3px 6px; border-radius: 4px; white-space: nowrap; margin-left: 10px; }
+        .benefit-badge {
+            display: block; background: #FFF0EE; color: var(--accent); padding: 8px 12px;
+            border-radius: 8px; font-size: 14px; font-weight: bold; margin-bottom: 12px;
+        }
+        .card-info { font-size: 13px; color: #666; display: flex; flex-direction: column; gap: 4px; }
+        
+        /* 상세정보 아코디언 */
+        .more-details {
+            max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out;
+            font-size: 13px; color: #555; border-top: 1px dashed #eee; margin-top: 10px;
+        }
+        .more-details.open { max-height: 300px; padding-top: 10px; }
+        
+        .action-area { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; }
+        .btn-map {
+            background: #E0F2F1; color: #00695C; padding: 8px 16px; border-radius: 6px;
+            font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 5px;
+        }
+        .btn-toggle { background: none; border: none; color: #888; font-size: 12px; cursor: pointer; }
+
+        /* Top 버튼 */
+        .top-btn {
+            position: fixed; bottom: 20px; right: 20px;
+            width: 48px; height: 48px; border-radius: 50%;
+            background: var(--primary); color: #fff; border: none;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            font-size: 20px; cursor: pointer; opacity: 0; pointer-events: none; transition: 0.3s; z-index: 2000;
+        }
+        .top-btn.show { opacity: 1; pointer-events: auto; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="main-tabs">
+            <a href="dining.html" class="tab-link active">🍽️ 맛집 · 카페</a>
+            <a href="shopping.html" class="tab-link">🛍️ 쇼핑 · 기타</a>
+        </div>
+
+        <div class="search-area">
+            <div class="search-box">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="searchInput" placeholder="매장, 메뉴(스시, 스테이크)...">
+            </div>
+            <div class="filter-toggle" onclick="this.classList.toggle('active'); common.filterData()">
+                <div class="toggle-switch"></div>
+                <span>영업중</span>
+            </div>
+        </div>
+
+        <div class="building-nav-wrapper">
+            <nav class="building-nav" id="buildingNav">
+                </nav>
+        </div>
+    </header>
+
+    <main class="content-container">
+        <div id="list-container"></div>
+    </main>
+
+    <button class="top-btn" onclick="window.scrollTo({top:0, behavior:'smooth'})">↑</button>
+
+    <script src="common.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // [중요] 식당 데이터를 로드하도록 설정
+            if(common.initPage) {
+                common.initPage('dining');
+            }
+            
+            // Top 버튼 표시 로직
+            window.addEventListener('scroll', () => {
+                const btn = document.querySelector('.top-btn');
+                if (window.scrollY > 200) btn.classList.add('show');
+                else btn.classList.remove('show');
+            });
+        });
+    </script>
+</body>
+</html>
