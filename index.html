@@ -8,26 +8,47 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
     
     <style>
-        /* [Design System] */
+        /* [Design System - Mobile Optimized] */
         :root {
             --primary: #00A896;   /* 메인: 오키나와 에메랄드 */
             --accent: #FF6F61;    /* 강조: 선셋 오렌지 */
-            --bg: #F8F9FA;        /* 배경: 아주 연한 회색 */
+            --bg: #F8F9FA;        /* 앱 내부 배경 */
+            --outer-bg: #e9ecef;  /* PC 화면 바깥 배경 */
             --text: #333;
-            --gray: #888;
             --white: #ffffff;
             --shadow: 0 4px 15px rgba(0,0,0,0.08);
+            --max-width: 600px;   /* 모바일 뷰 최대 너비 제한 */
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { margin: 0; padding: 0; font-family: 'Noto Sans KR', sans-serif; background: var(--bg); color: var(--text); padding-bottom: 80px; }
+
+        /* PC 배경 설정 */
+        html { background-color: var(--outer-bg); }
+
+        body { 
+            margin: 0 auto; /* 중앙 정렬 */
+            padding: 0; 
+            font-family: 'Noto Sans KR', sans-serif; 
+            background: var(--bg); 
+            color: var(--text); 
+            padding-bottom: 80px; 
+            min-height: 100vh;
+            
+            /* 모바일 레이아웃 고정 (PC 대응) */
+            max-width: var(--max-width);
+            box-shadow: 0 0 20px rgba(0,0,0,0.1); /* 앱 같은 그림자 효과 */
+            position: relative;
+        }
+
         a { text-decoration: none; color: inherit; }
 
         /* ----------------------------------------------------------- */
         /* 1. 고정 헤더 영역 (지도 포함)                                 */
         /* ----------------------------------------------------------- */
         header {
-            position: fixed; top: 0; left: 0; width: 100%; z-index: 1000;
+            position: fixed; top: 0; left: 50%; transform: translateX(-50%); /* 중앙 정렬 */
+            width: 100%; max-width: var(--max-width); /* 너비 제한 */
+            z-index: 1000;
             background: var(--white); box-shadow: 0 2px 10px rgba(0,0,0,0.05);
             transition: transform 0.3s;
         }
@@ -41,31 +62,34 @@
         }
         .tab-link.active { color: var(--primary); border-bottom: 3px solid var(--primary); color: var(--primary); }
 
-        /* 지도 토글 버튼 (헤더 하단에 위치) */
+        /* 지도 토글 버튼 */
         .map-toggle-bar {
             background: #E0F2F1; color: #00695C; text-align: center; padding: 8px;
             font-size: 13px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px;
         }
 
-        /* 🗺️ 인터랙티브 지도 영역 (초기엔 숨김) */
+        /* 🗺️ 인터랙티브 지도 영역 */
         #mapSection {
             height: 0; overflow: hidden; background: #ccedee; position: relative;
             transition: height 0.4s ease-in-out;
         }
-        #mapSection.open { height: 220px; } /* 열렸을 때 높이 */
+        #mapSection.open { height: 250px; } /* 지도 펼쳤을 때 높이 */
         
-        /* 지도 내 건물 핫스팟 (실제 이미지 위에 배치될 버튼들) */
+        /* 지도 이미지 연결 */
         .map-placeholder {
             width: 100%; height: 100%; position: relative;
-            background: url('https://via.placeholder.com/600x300/81D4FA/FFFFFF?text=American+Village+MAP') center/cover;
+            /* 👇 업로드 예정인 파일명 적용 */
+            background: url('./map_dining.png') center/cover no-repeat;
         }
+
+        /* 핫스팟 (클릭 영역) 스타일 */
         .hotspot {
-            position: absolute; background: var(--white); padding: 5px 10px; border-radius: 12px;
+            position: absolute; background: rgba(255,255,255,0.9); padding: 4px 8px; border-radius: 12px;
             font-size: 11px; font-weight: bold; color: var(--text); box-shadow: 0 2px 5px rgba(0,0,0,0.2);
             transform: translate(-50%, -50%); cursor: pointer; border: 2px solid var(--primary);
             animation: pulse 2s infinite;
         }
-        /* 핫스팟 위치 예시 (임의 설정) */
+        /* 위치 예시 (지도 이미지에 맞춰 top/left 조절 필요) */
         .spot-1 { top: 30%; left: 30%; } /* 데포 A */
         .spot-2 { top: 40%; left: 60%; } /* 데포 B */
         .spot-3 { top: 70%; left: 40%; } /* 시사이드 */
@@ -89,7 +113,7 @@
         }
         .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #aaa; }
 
-        /* ♥ 찜한 가게만 보기 토글 */
+        /* 찜한 가게 토글 */
         .fav-toggle-btn {
             border: none; background: none; font-size: 24px; color: #ccc; cursor: pointer; padding: 0;
             transition: color 0.2s, transform 0.2s;
@@ -97,7 +121,7 @@
         .fav-toggle-btn.active { color: var(--accent); transform: scale(1.1); }
         .fav-label { font-size: 10px; color: #888; display: block; text-align: center; line-height: 1; margin-top: -2px;}
 
-        /* 🏷️ 해시태그 바 (가로 스크롤) */
+        /* 해시태그 바 (가로 스크롤) */
         .hashtag-nav {
             display: flex; gap: 6px; padding: 8px 15px 12px 15px; overflow-x: auto; background: #fff;
             scrollbar-width: none; border-bottom: 1px solid #eee;
@@ -114,16 +138,16 @@
         /* 3. 콘텐츠 영역                                                */
         /* ----------------------------------------------------------- */
         .content-container { 
-            /* 헤더 높이에 따라 마진 조정 (JS로 동적 제어 가능하나 CSS로 대략 잡음) */
-            margin-top: 175px; 
+            /* 헤더 높이에 따라 여백은 JS가 자동 조절하지만, 기본값 설정 */
+            margin-top: 180px; 
             padding: 15px; 
             min-height: 80vh;
         }
 
         /* 섹션 & 카드 */
-        .building-section { scroll-margin-top: 180px; margin-bottom: 40px; }
+        .building-section { scroll-margin-top: 190px; margin-bottom: 40px; }
         .section-header {
-            display: flex; align-items: center; margin-bottom: 15px; position: sticky; top: 170px; /* 섹션 헤더 스티키 */
+            display: flex; align-items: center; margin-bottom: 15px; position: sticky; top: 175px;
             font-size: 18px; font-weight: 700; color: #222; background: var(--bg); padding: 5px 0; z-index: 900;
         }
         .section-header span { color: var(--primary); margin-right: 5px; }
@@ -148,9 +172,8 @@
         .badge { font-size: 11px; padding: 3px 6px; border-radius: 4px; background: #f0f0f0; color: #666; }
         .badge.discount { background: #FFF0EE; color: var(--accent); font-weight: bold; }
 
-        .benefit-text { font-size: 14px; color: var(--text); margin-bottom: 8px; font-weight: 500; }
-        .card-meta { font-size: 12px; color: #888; display: flex; align-items: center; gap: 10px; }
-
+        .card-info { font-size: 13px; color: #666; display: flex; flex-direction: column; gap: 4px; }
+        
         /* 상세정보 (아코디언) */
         .more-info {
             max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out;
@@ -173,6 +196,10 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.2);
             font-size: 22px; cursor: pointer; opacity: 0; pointer-events: none; transition: 0.3s; z-index: 2000;
         }
+        /* 버튼 위치도 중앙 정렬된 바디 기준 우측 배치 (PC 대응) */
+        @media (min-width: 601px) {
+            .top-btn { right: calc(50% - 280px); }
+        }
         .top-btn.show { opacity: 1; pointer-events: auto; }
 
     </style>
@@ -186,7 +213,7 @@
         </div>
 
         <div class="map-toggle-bar" onclick="toggleMap()">
-            <span>🗺️ 지도에서 위치 찾기</span>
+            <span>🗺️ 지도에서 맛집 찾기</span>
             <span id="mapArrow">▼</span>
         </div>
 
@@ -196,7 +223,7 @@
                 <div class="hotspot spot-2" onclick="common.scrollToSection('section-데포아일랜드B동')">데포 B</div>
                 <div class="hotspot spot-3" onclick="common.scrollToSection('section-데포아일랜드시사이드')">시사이드</div>
                 <div class="hotspot spot-4" onclick="common.scrollToSection('section-레쿠프리미어동')">레쿠 호텔</div>
-                <div style="position: absolute; bottom: 10px; right: 10px; font-size: 10px; color: #555; background: rgba(255,255,255,0.8); padding: 2px 5px;">* 지도를 터치하면 이동합니다</div>
+                <div style="position: absolute; bottom: 10px; right: 10px; font-size: 10px; color: #555; background: rgba(255,255,255,0.8); padding: 2px 5px;">* 건물을 터치하면 이동합니다</div>
             </div>
         </div>
 
@@ -213,13 +240,7 @@
             </div>
         </div>
 
-        <nav class="hashtag-nav" id="hashtagNav">
-            <span class="tag-chip active" onclick="common.filterByTag('all', this)">전체</span>
-            <span class="tag-chip" onclick="common.filterByTag('스테이크', this)">#스테이크</span>
-            <span class="tag-chip" onclick="common.filterByTag('디저트', this)">#디저트</span>
-            <span class="tag-chip" onclick="common.filterByTag('오션뷰', this)">#오션뷰</span>
-            <span class="tag-chip" onclick="common.filterByTag('할인', this)">#할인율높음</span>
-        </nav>
+        <nav class="hashtag-nav" id="hashtagNav"></nav>
     </header>
 
     <main class="content-container">
@@ -230,7 +251,7 @@
 
     <script src="common.js"></script>
     <script>
-        // 지도 토글 함수 (index.html 전용 UI 로직)
+        // 지도 토글 함수
         function toggleMap() {
             const mapSec = document.getElementById('mapSection');
             const arrow = document.getElementById('mapArrow');
@@ -245,13 +266,12 @@
 
         // 초기화
         document.addEventListener('DOMContentLoaded', () => {
-            // common.js가 로드되었는지 확인 후 실행
             if(common && common.initPage) {
-                // 식당 페이지 초기화 (해시태그, 찜하기 기능 포함)
+                // 식당 데이터 로드
                 common.initPage('dining');
             }
 
-            // 스크롤 이벤트 (Top 버튼)
+            // Top 버튼 표시 로직
             window.addEventListener('scroll', () => {
                 const btn = document.querySelector('.top-btn');
                 if (window.scrollY > 300) btn.classList.add('show');

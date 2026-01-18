@@ -8,26 +8,47 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
     
     <style>
-        /* [Design System - v2.0 공통 스타일] */
+        /* [Design System - Mobile Optimized] */
         :root {
             --primary: #00A896;   /* 메인: 오키나와 에메랄드 */
             --accent: #FF6F61;    /* 강조: 선셋 오렌지 */
-            --bg: #F8F9FA;        /* 배경: 아주 연한 회색 */
+            --bg: #F8F9FA;        /* 앱 내부 배경 */
+            --outer-bg: #e9ecef;  /* PC 화면 바깥 배경 */
             --text: #333;
-            --gray: #888;
             --white: #ffffff;
             --shadow: 0 4px 15px rgba(0,0,0,0.08);
+            --max-width: 600px;   /* 모바일 뷰 최대 너비 제한 */
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { margin: 0; padding: 0; font-family: 'Noto Sans KR', sans-serif; background: var(--bg); color: var(--text); padding-bottom: 80px; }
+
+        /* PC 배경 설정 */
+        html { background-color: var(--outer-bg); }
+
+        body { 
+            margin: 0 auto; /* 중앙 정렬 */
+            padding: 0; 
+            font-family: 'Noto Sans KR', sans-serif; 
+            background: var(--bg); 
+            color: var(--text); 
+            padding-bottom: 80px; 
+            min-height: 100vh;
+            
+            /* 모바일 레이아웃 고정 (PC 대응) */
+            max-width: var(--max-width);
+            box-shadow: 0 0 20px rgba(0,0,0,0.1); /* 앱 같은 그림자 효과 */
+            position: relative;
+        }
+
         a { text-decoration: none; color: inherit; }
 
         /* ----------------------------------------------------------- */
         /* 1. 고정 헤더 영역 (지도 포함)                                 */
         /* ----------------------------------------------------------- */
         header {
-            position: fixed; top: 0; left: 0; width: 100%; z-index: 1000;
+            position: fixed; top: 0; left: 50%; transform: translateX(-50%); /* 중앙 정렬 */
+            width: 100%; max-width: var(--max-width); /* 너비 제한 */
+            z-index: 1000;
             background: var(--white); box-shadow: 0 2px 10px rgba(0,0,0,0.05);
             transition: transform 0.3s;
         }
@@ -40,7 +61,7 @@
             cursor: pointer; transition: 0.2s; background: #fff;
         }
         /* 식당 탭 활성화 스타일 */
-        .tab-link.active { color: var(--primary); border-bottom: 3px solid var(--primary); }
+        .tab-link.active { color: var(--primary); border-bottom: 3px solid var(--primary); color: var(--primary); }
 
         /* 지도 토글 버튼 */
         .map-toggle-bar {
@@ -53,19 +74,23 @@
             height: 0; overflow: hidden; background: #ccedee; position: relative;
             transition: height 0.4s ease-in-out;
         }
-        #mapSection.open { height: 220px; } 
+        #mapSection.open { height: 250px; } /* 지도 펼쳤을 때 높이 */
         
-        /* 지도 내 건물 핫스팟 */
+        /* 지도 이미지 연결 (식당용) */
         .map-placeholder {
             width: 100%; height: 100%; position: relative;
-            background: url('https://via.placeholder.com/600x300/81D4FA/FFFFFF?text=Dining+Map') center/cover;
+            /* 👇 업로드 예정인 식당용 지도 파일명 */
+            background: url('./map_dining.png') center/cover no-repeat;
         }
+
+        /* 핫스팟 (클릭 영역) 스타일 */
         .hotspot {
-            position: absolute; background: var(--white); padding: 5px 10px; border-radius: 12px;
+            position: absolute; background: rgba(255,255,255,0.9); padding: 4px 8px; border-radius: 12px;
             font-size: 11px; font-weight: bold; color: var(--text); box-shadow: 0 2px 5px rgba(0,0,0,0.2);
             transform: translate(-50%, -50%); cursor: pointer; border: 2px solid var(--primary);
             animation: pulse 2s infinite;
         }
+        /* 위치 예시 (지도 이미지에 맞춰 top/left 조절 권장) */
         .spot-1 { top: 30%; left: 30%; } /* 데포 A */
         .spot-2 { top: 40%; left: 60%; } /* 데포 B */
         .spot-3 { top: 70%; left: 40%; } /* 시사이드 */
@@ -89,7 +114,7 @@
         }
         .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #aaa; }
 
-        /* ♥ 찜한 가게만 보기 토글 */
+        /* 찜한 가게 토글 */
         .fav-toggle-btn {
             border: none; background: none; font-size: 24px; color: #ccc; cursor: pointer; padding: 0;
             transition: color 0.2s, transform 0.2s;
@@ -97,7 +122,7 @@
         .fav-toggle-btn.active { color: var(--accent); transform: scale(1.1); }
         .fav-label { font-size: 10px; color: #888; display: block; text-align: center; line-height: 1; margin-top: -2px;}
 
-        /* 🏷️ 해시태그 바 (가로 스크롤) */
+        /* 해시태그 바 (가로 스크롤) */
         .hashtag-nav {
             display: flex; gap: 6px; padding: 8px 15px 12px 15px; overflow-x: auto; background: #fff;
             scrollbar-width: none; border-bottom: 1px solid #eee;
@@ -114,15 +139,16 @@
         /* 3. 콘텐츠 영역                                                */
         /* ----------------------------------------------------------- */
         .content-container { 
-            margin-top: 175px; 
+            /* 헤더 높이에 따라 여백은 JS가 자동 조절하지만, 기본값 설정 */
+            margin-top: 180px; 
             padding: 15px; 
             min-height: 80vh;
         }
 
         /* 섹션 & 카드 */
-        .building-section { scroll-margin-top: 180px; margin-bottom: 40px; }
+        .building-section { scroll-margin-top: 190px; margin-bottom: 40px; }
         .section-header {
-            display: flex; align-items: center; margin-bottom: 15px; position: sticky; top: 170px;
+            display: flex; align-items: center; margin-bottom: 15px; position: sticky; top: 175px;
             font-size: 18px; font-weight: 700; color: #222; background: var(--bg); padding: 5px 0; z-index: 900;
         }
         .section-header span { color: var(--primary); margin-right: 5px; }
@@ -163,13 +189,16 @@
         .btn-map { background: #E0F2F1; color: #00695C; }
         .btn-detail { background: #fff; border: 1px solid #ddd; color: #555; }
 
-        /* Top 버튼 */
+        /* Top 버튼 (PC 위치 보정 포함) */
         .top-btn {
             position: fixed; bottom: 25px; right: 20px;
             width: 50px; height: 50px; border-radius: 50%;
             background: var(--primary); color: #fff; border: none;
             box-shadow: 0 4px 12px rgba(0,0,0,0.2);
             font-size: 22px; cursor: pointer; opacity: 0; pointer-events: none; transition: 0.3s; z-index: 2000;
+        }
+        @media (min-width: 601px) {
+            .top-btn { right: calc(50% - 280px); }
         }
         .top-btn.show { opacity: 1; pointer-events: auto; }
 
@@ -194,7 +223,7 @@
                 <div class="hotspot spot-2" onclick="common.scrollToSection('section-데포아일랜드B동')">데포 B</div>
                 <div class="hotspot spot-3" onclick="common.scrollToSection('section-데포아일랜드시사이드')">시사이드</div>
                 <div class="hotspot spot-4" onclick="common.scrollToSection('section-레쿠프리미어동')">레쿠 호텔</div>
-                <div style="position: absolute; bottom: 10px; right: 10px; font-size: 10px; color: #555; background: rgba(255,255,255,0.8); padding: 2px 5px;">* 건물을 터치하면 리스트가 이동합니다</div>
+                <div style="position: absolute; bottom: 10px; right: 10px; font-size: 10px; color: #555; background: rgba(255,255,255,0.8); padding: 2px 5px;">* 건물을 터치하면 이동합니다</div>
             </div>
         </div>
 
@@ -211,8 +240,7 @@
             </div>
         </div>
 
-        <nav class="hashtag-nav" id="hashtagNav">
-            </nav>
+        <nav class="hashtag-nav" id="hashtagNav"></nav>
     </header>
 
     <main class="content-container">
@@ -239,7 +267,7 @@
         // 초기화
         document.addEventListener('DOMContentLoaded', () => {
             if(common && common.initPage) {
-                // 'dining' 타입으로 초기화
+                // 식당 데이터 로드 (dining 타입)
                 common.initPage('dining');
             }
 
