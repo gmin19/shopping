@@ -60,6 +60,7 @@
             font-size: 15px; font-weight: 700; color: #999; 
             cursor: pointer; transition: 0.2s; background: #fff;
         }
+        /* 맛집 탭 활성화 */
         .tab-link.active { color: var(--primary); border-bottom: 3px solid var(--primary); color: var(--primary); }
 
         /* 지도 토글 버튼 */
@@ -78,28 +79,10 @@
         /* 지도 이미지 연결 */
         .map-placeholder {
             width: 100%; height: 100%; position: relative;
-            /* 👇 업로드 예정인 파일명 적용 */
             background: url('./map_dining.png') center/cover no-repeat;
         }
 
-        /* 핫스팟 (클릭 영역) 스타일 */
-        .hotspot {
-            position: absolute; background: rgba(255,255,255,0.9); padding: 4px 8px; border-radius: 12px;
-            font-size: 11px; font-weight: bold; color: var(--text); box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            transform: translate(-50%, -50%); cursor: pointer; border: 2px solid var(--primary);
-            animation: pulse 2s infinite;
-        }
-        /* 위치 예시 (지도 이미지에 맞춰 top/left 조절 필요) */
-        .spot-1 { top: 30%; left: 30%; } /* 데포 A */
-        .spot-2 { top: 40%; left: 60%; } /* 데포 B */
-        .spot-3 { top: 70%; left: 40%; } /* 시사이드 */
-        .spot-4 { top: 20%; left: 80%; } /* 레쿠 */
-
-        @keyframes pulse {
-            0% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 0 0 rgba(0, 168, 150, 0.7); }
-            70% { transform: translate(-50%, -50%) scale(1.05); box-shadow: 0 0 0 10px rgba(0, 168, 150, 0); }
-            100% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 0 0 rgba(0, 168, 150, 0); }
-        }
+        /* (삭제됨) .hotspot, .spot-1... 등 버튼 스타일 제거 */
 
         /* ----------------------------------------------------------- */
         /* 2. 검색 & 필터 영역                                           */
@@ -188,7 +171,7 @@
         .btn-map { background: #E0F2F1; color: #00695C; }
         .btn-detail { background: #fff; border: 1px solid #ddd; color: #555; }
 
-        /* Top 버튼 */
+        /* Top 버튼 (PC 위치 보정 포함) */
         .top-btn {
             position: fixed; bottom: 25px; right: 20px;
             width: 50px; height: 50px; border-radius: 50%;
@@ -196,7 +179,6 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.2);
             font-size: 22px; cursor: pointer; opacity: 0; pointer-events: none; transition: 0.3s; z-index: 2000;
         }
-        /* 버튼 위치도 중앙 정렬된 바디 기준 우측 배치 (PC 대응) */
         @media (min-width: 601px) {
             .top-btn { right: calc(50% - 280px); }
         }
@@ -213,18 +195,13 @@
         </div>
 
         <div class="map-toggle-bar" onclick="toggleMap()">
-            <span>🗺️ 지도에서 맛집 찾기</span>
+            <span>🗺️ 지도 보기</span>
             <span id="mapArrow">▼</span>
         </div>
 
         <div id="mapSection">
             <div class="map-placeholder">
-                <div class="hotspot spot-1" onclick="common.scrollToSection('section-데포아일랜드A동')">데포 A</div>
-                <div class="hotspot spot-2" onclick="common.scrollToSection('section-데포아일랜드B동')">데포 B</div>
-                <div class="hotspot spot-3" onclick="common.scrollToSection('section-데포아일랜드시사이드')">시사이드</div>
-                <div class="hotspot spot-4" onclick="common.scrollToSection('section-레쿠프리미어동')">레쿠 호텔</div>
-                <div style="position: absolute; bottom: 10px; right: 10px; font-size: 10px; color: #555; background: rgba(255,255,255,0.8); padding: 2px 5px;">* 건물을 터치하면 이동합니다</div>
-            </div>
+                </div>
         </div>
 
         <div class="search-area">
@@ -267,7 +244,7 @@
         // 초기화
         document.addEventListener('DOMContentLoaded', () => {
             if(common && common.initPage) {
-                // 식당 데이터 로드
+                // 식당 데이터 로드 (dining 타입)
                 common.initPage('dining');
             }
 
